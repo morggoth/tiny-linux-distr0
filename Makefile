@@ -1,2 +1,2 @@
 build:
-	docker build .  --no-cache --tag tiny-distro-builder
+	docker build . --tag tiny-distro-builder

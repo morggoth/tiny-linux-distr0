@@ -7,7 +7,8 @@ SHELL [ "/bin/bash", "-c" ]
 ARG KERNEL_VERSION="6.6.2"
 ARG BUSYBOX_VERSION="1.36.1"
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV BUILD_DIR="/build"
+ENV DEBIAN_FRONTEND="noninteractive"
 
 RUN apt update && \
     apt install --yes \
@@ -28,7 +29,7 @@ RUN apt update && \
     #   extlinux \
     #   dosfstools \
 
-WORKDIR /build
+WORKDIR ${BUILD_DIR}
 
 RUN mkdir -p src linux/{bin,dev,proc,sys} initrd
 

@@ -2,6 +2,8 @@ FROM ubuntu:22.04
 
 # RUN  apt install --yes make build-essential bc bison flex libssl-dev libelf-dev wget cpio fdisk extlinux dosfstools qemu-system-x86
 
+SHELL [ "/bin/bash -c" ]
+
 ARG KERNEL_VERSION="6.6.2"
 ARG BUSYBOX_VERSION="1.36.1"
 

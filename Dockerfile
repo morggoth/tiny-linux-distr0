@@ -30,7 +30,7 @@ RUN apt update && \
 
 WORKDIR /build
 
-RUN mkdir src linux/{bin,dev,proc,sys} initrd
+RUN mkdir -p src linux/{bin,dev,proc,sys} initrd
 
 COPY --chmod=777 files/init initrd/
 COPY files/Makefile ./

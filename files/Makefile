@@ -9,8 +9,10 @@ INITRD_DIR=$${BUILD_DIR}/initrd
 
 ifeq ($(shell arch), x86_64)
   ARCH="x86_64"
+  IMAGE="bzImage"
 else ifeq ($(shell arch), aarch64)
   ARCH="arm64"
+  IMAGE="Image"
 endif
 
 all: initrd kernel
@@ -32,4 +34,4 @@ kernel:
 	cd ${SRC_DIR}/linux-${KERNEL_VERSION}
 	$(MAKE) -C ${SRC_DIR}/linux-${KERNEL_VERSION} -j${NPROC} defconfig
 	$(MAKE) -C ${SRC_DIR}/linux-${KERNEL_VERSION} -j${NPROC}
-	cp ${SRC_DIR}/linux-${KERNEL_VERSION}/arch/${ARCH}/boot/bzImage ${BUILD_DIR}/linux/vmlinuz-${KERNEL_VERSION}
+	cp ${SRC_DIR}/linux-${KERNEL_VERSION}/arch/${ARCH}/boot/${IMAGE} ${BUILD_DIR}/linux/vmlinuz-${KERNEL_VERSION}

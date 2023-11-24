@@ -1,22 +1,35 @@
 .ONESHELL:
 .SHELLFLAGS += -e
+.PHONY: all clean initrd kernel
 
-KERNEL_VERSION="6.6.2"
-BUSYBOX_VERSION="1.36.1"
 KERNEL_MAJOR_VERSION=$$(echo ${KERNEL_VERSION} | cut --delimiter="." --fields=1)
 NPROC=$$(nproc --all)
+SRC_DIR=$${BUILD_DIR}/src
+INITRD_DIR=$${BUILD_DIR}/initrd
 
-busybox:
-	curl https://busybox.net/downloads/busybox-${BUSYBOX_VERSION}.tar.bz2 | tar -C ${BUILD_DIR}/src/ -xjf -
-	$(MAKE) -C ${BUILD_DIR}/src/busybox-${BUSYBOX_VERSION} -j${NPROC} defconfig
-	$(MAKE) -C ${BUILD_DIR}/src/busybox-${BUSYBOX_VERSION} -j${NPROC} LDFLAGS=-static
-	cp ${BUILD_DIR}/src/busybox-${BUSYBOX_VERSION}/busybox ${BUILD_DIR}/initrd/bin/
-	for app in $$(${BUILD_DIR}/initrd/bin/busybox --list); do ln -s /bin/busybox ${BUILD_DIR}/initrd/bin/$${app}; done
-	find ${BUILD_DIR}/initrd | cpio -o -H newc > ${BUILD_DIR}/linux/initrd-busybox-${BUSYBOX_VERSION}.img
+ifeq ($(shell arch), x86_64)
+  ARCH="x86_64"
+else ifeq ($(shell arch), aarch64)
+  ARCH="arm64"
+endif
+
+all: initrd kernel
+
+clean:
+	rm -rf src linux initrd/bin
+	mkdir -p src linux initrd/bin
+
+initrd:
+	curl https://busybox.net/downloads/busybox-${BUSYBOX_VERSION}.tar.bz2 | tar -C ${SRC_DIR} -xjf -
+	$(MAKE) -C ${SRC_DIR}/busybox-${BUSYBOX_VERSION} -j${NPROC} defconfig
+	$(MAKE) -C ${SRC_DIR}/busybox-${BUSYBOX_VERSION} -j${NPROC} LDFLAGS=-static
+	cp ${SRC_DIR}/busybox-${BUSYBOX_VERSION}/busybox ${INITRD_DIR}/bin/
+	for app in $$(${INITRD_DIR}/bin/busybox --list); do ln -s /bin/busybox ${INITRD_DIR}/bin/$${app}; done
+	find ${INITRD_DIR} | cpio -o -H newc > ${BUILD_DIR}/linux/initrd-busybox-${BUSYBOX_VERSION}.img
 
 kernel:
-	curl https://cdn.kernel.org/pub/linux/kernel/v${KERNEL_MAJOR_VERSION}.x/linux-${KERNEL_VERSION}.tar.xz | tar -C ${BUILD_DIR}/src/ -xJf -
-	cd ${BUILD_DIR}/src/linux-${KERNEL_VERSION}
-	$(MAKE) -C ${BUILD_DIR}/src/linux-${KERNEL_VERSION} -j${NPROC} defconfig
-	$(MAKE) -C ${BUILD_DIR}/src/linux-${KERNEL_VERSION} -j${NPROC}
-	cp ${BUILD_DIR}/src/linux-${KERNEL_VERSION}/arch/x86_64/boot/bzImage ${BUILD_DIR}/linux/vmlinuz-${KERNEL_VERSION}
+	curl https://cdn.kernel.org/pub/linux/kernel/v${KERNEL_MAJOR_VERSION}.x/linux-${KERNEL_VERSION}.tar.xz | tar -C ${SRC_DIR}/ -xJf -
+	cd ${SRC_DIR}/linux-${KERNEL_VERSION}
+	$(MAKE) -C ${SRC_DIR}/linux-${KERNEL_VERSION} -j${NPROC} defconfig
+	$(MAKE) -C ${SRC_DIR}/linux-${KERNEL_VERSION} -j${NPROC}
+	cp ${SRC_DIR}/linux-${KERNEL_VERSION}/arch/${ARCH}/boot/bzImage ${BUILD_DIR}/linux/vmlinuz-${KERNEL_VERSION}

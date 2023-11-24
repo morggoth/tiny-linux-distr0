@@ -11,7 +11,7 @@ busybox:
 	$(MAKE) -C ${BUILD_DIR}/src/busybox-${BUSYBOX_VERSION} -j${NPROC} defconfig
 	$(MAKE) -C ${BUILD_DIR}/src/busybox-${BUSYBOX_VERSION} -j${NPROC} LDFLAGS=-static
 	cp ${BUILD_DIR}/src/busybox-${BUSYBOX_VERSION}/busybox ${BUILD_DIR}/initrd/bin/
-	for app in $$(${BUILD_DIR}/initrd/bin/busybox --list); do ln -s /bin/busybox ${BUILD_DIR}/initrd/bin/${app}; done
+	for app in $$(${BUILD_DIR}/initrd/bin/busybox --list); do ln -s /bin/busybox ${BUILD_DIR}/initrd/bin/$${app}; done
 	find ${BUILD_DIR}/initrd | cpio -o -H newc > ${BUILD_DIR}/linux/initrd-busybox-${BUSYBOX_VERSION}.img
 
 kernel:

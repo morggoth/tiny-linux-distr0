@@ -31,3 +31,5 @@ RUN mkdir -p src linux initrd/{bin,dev,proc,sys}
 
 COPY --chmod=777 files/init initrd/
 COPY files/Makefile ./
+
+CMD [ "make", "all" ]
